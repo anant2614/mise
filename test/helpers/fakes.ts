@@ -9,7 +9,7 @@ import type { Address, CalendarEvent, EmailMessage, Interval } from "../../src/t
 let seq = 0;
 const nextId = (p: string) => `${p}${++seq}`;
 
-export function email(partial: Partial<EmailMessage> & { from: Address | string; body: string }): EmailMessage {
+export function email(partial: Omit<Partial<EmailMessage>, "from"> & { from: Address | string; body: string }): EmailMessage {
   const from = typeof partial.from === "string" ? { email: partial.from } : partial.from;
   const id = partial.id ?? nextId("m");
   return {
@@ -22,7 +22,7 @@ export function email(partial: Partial<EmailMessage> & { from: Address | string;
     snippet: partial.snippet ?? partial.body.slice(0, 100),
     labelIds: partial.labelIds ?? ["INBOX"],
     headers: partial.headers ?? { "message-id": `<${id}@mail.example.com>` },
-    ...partial,
+    ...(partial as Partial<EmailMessage>),
     from,
     body: partial.body,
   };
@@ -203,7 +203,7 @@ export class FakeCalendar implements CalendarApi {
 export type SimpleAnswer = number | string | { top: string; p: number } | { level: number; p?: number };
 
 /** Builds well-formed Clef answers from terse values: noul → p, choice → option, score → level. */
-export function clefAnswers(questions: ClefQuestions, simple: Record<string, SimpleAnswer>): ClefAnswers {
+export function clefAnswers(questions: ClefQuestions, simple: Record<string, SimpleAnswer | undefined>): ClefAnswers {
   const out: ClefAnswers = {};
   for (const [id, q] of Object.entries(questions)) {
     const v = simple[id];
@@ -234,7 +234,7 @@ export interface AiCall {
 export class FakeAI implements Inference {
   calls: AiCall[] = [];
   constructor(
-    private onDecide: (model: string, state: any, questions: ClefQuestions) => Record<string, SimpleAnswer>,
+    private onDecide: (model: string, state: any, questions: ClefQuestions) => Record<string, SimpleAnswer | undefined>,
     private onGenerate: (model: string, req: GenerateRequest, purpose: string) => string,
   ) {}
 

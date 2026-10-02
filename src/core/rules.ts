@@ -21,9 +21,9 @@ export function applyRules(msg: EmailMessage, userEmail: string, vips: string[] 
   if (labels.some((l) => SKIP_LABELS.includes(l))) return { action: "skip", reason: "spam, trash, draft or chat" };
 
   const from = msg.from.email.toLowerCase();
-  if (labels.includes("SENT") || from === userEmail.toLowerCase()) {
-    return { action: "sent", reason: "sent by the user" };
-  }
+  // Only Gmail's SENT label proves the user sent it; a From header can be forged by anyone.
+  if (labels.includes("SENT")) return { action: "sent", reason: "sent by the user" };
+  if (from === userEmail.toLowerCase()) return { action: "triage", reason: "claims to be from the user but was not sent from this account", vip: false };
 
   if (vips.some((v) => v.toLowerCase() === from)) return { action: "triage", reason: "VIP sender", vip: true };
 

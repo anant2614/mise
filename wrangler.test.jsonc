@@ -1,0 +1,21 @@
+// Test-only config for the workerd integration tests: no remote AI binding (inference is
+// swapped through the `testing` seam in src/agent.ts) and dummy secrets.
+{
+  "name": "mise-test",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": { "bindings": [{ "name": "InboxAgent", "class_name": "InboxAgent" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["InboxAgent"] }],
+  "d1_databases": [{ "binding": "DB", "database_name": "mise-test", "database_id": "local-test" }],
+  "vars": {
+    "PUBLIC_URL": "https://mise.test",
+    "PUBSUB_TOPIC": "projects/test/topics/gmail",
+    "PUBSUB_AUDIENCE": "https://mise.test/webhooks/gmail",
+    "PUBSUB_SERVICE_ACCOUNT": "pubsub@test.iam.gserviceaccount.com",
+    "GOOGLE_CLIENT_ID": "client-id",
+    "GOOGLE_CLIENT_SECRET": "client-secret",
+    "TOKEN_ENC_KEY": "test-token-encryption-key",
+    "SESSION_SECRET": "test-session-secret"
+  }
+}

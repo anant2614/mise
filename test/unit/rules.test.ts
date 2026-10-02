@@ -12,7 +12,10 @@ describe("rules pre-filter (FR-5)", () => {
 
   it("routes the user's own mail to sent handling", () => {
     expect(applyRules(email({ from: USER, body: "hi", labelIds: ["SENT"] }), USER).action).toBe("sent");
-    expect(applyRules(email({ from: "Anant@Example.com", body: "hi", labelIds: [] }), USER).action).toBe("sent");
+  });
+
+  it("does not trust a forged From: the user without the SENT label", () => {
+    expect(applyRules(email({ from: "Anant@Example.com", body: "hi", labelIds: ["INBOX"] }), USER).action).toBe("triage");
   });
 
   it("ignores newsletters by List-Unsubscribe, category and precedence without a model call", () => {

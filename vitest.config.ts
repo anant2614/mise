@@ -11,7 +11,7 @@ export default defineConfig({
       {
         // The real Worker + InboxAgent Durable Object, running in workerd.
         plugins: [cloudflareTest({ wrangler: { configPath: "./wrangler.test.jsonc" } })],
-        test: { name: "worker", include: ["test/worker/**/*.test.ts"] },
+        test: { name: "worker", include: ["test/worker/**/*.test.ts"], testTimeout: 30_000 },
       },
     ],
   },

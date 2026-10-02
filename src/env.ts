@@ -11,8 +11,8 @@ export interface Env {
   PUBLIC_URL: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
-  /** Gmail push topic, projects/<project>/topics/<topic>. */
-  PUBSUB_TOPIC: string;
+  /** Gmail push topic, projects/<project>/topics/<topic>. Leave empty to poll Gmail every 2 minutes instead. */
+  PUBSUB_TOPIC?: string;
   /** Audience configured on the Pub/Sub push subscription (defaults to the webhook URL). */
   PUBSUB_AUDIENCE?: string;
   /** Service account the push subscription signs as. */

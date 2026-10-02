@@ -117,10 +117,19 @@ export class InboxAgent extends Agent<Env, AgentState> {
     this.refreshState({ onboarded: true, needsReauth: false });
   }
 
+  /** Without a Pub/Sub topic (e.g. local dev, where Google can't reach the Worker) Mise polls Gmail instead. */
+  private get pollMode(): boolean {
+    return !this.env.PUBSUB_TOPIC;
+  }
+
   private async startWatches() {
-    const watch = await this.mail.watch(this.env.PUBSUB_TOPIC);
-    if (!this.store.get("history_id")) this.store.set("history_id", watch.historyId);
-    this.store.set("watch_expiration", String(watch.expiration));
+    if (this.pollMode) {
+      if (!this.store.get("history_id")) this.store.set("history_id", (await this.mail.getProfile()).historyId);
+    } else {
+      const watch = await this.mail.watch(this.env.PUBSUB_TOPIC!);
+      if (!this.store.get("history_id")) this.store.set("history_id", watch.historyId);
+      this.store.set("watch_expiration", String(watch.expiration));
+    }
     if (this.env.PUBLIC_URL.startsWith("https://")) {
       const channelId = crypto.randomUUID();
       const token = await sign(`cal:${this.name}`, this.env.SESSION_SECRET);
@@ -134,6 +143,7 @@ export class InboxAgent extends Agent<Env, AgentState> {
     await this.schedule("17 4 * * *", "renewWatch"); // FR-1: daily; watches expire after 7 days
     await this.schedule("7 * * * *", "hourly"); // follow-ups, snoozes, calendar safety sync
     await this.schedule("43 2 * * *", "nightlyLearning"); // FR-26
+    if (this.pollMode) await this.schedule("*/2 * * * *", "syncMail");
     await this.scheduleBrief();
   }
 

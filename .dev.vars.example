@@ -1,0 +1,15 @@
+# Copy to .dev.vars for `npm run dev`. Values here override "vars" in wrangler.jsonc.
+PUBLIC_URL=http://localhost:8787
+
+# Google OAuth client (type "Web application"), redirect URI http://localhost:8787/auth/callback
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Any long random strings, e.g. `openssl rand -base64 32`
+TOKEN_ENC_KEY=
+SESSION_SECRET=
+
+# Empty = no Pub/Sub: Mise polls Gmail every 2 minutes (and the dashboard has "Sync Gmail now").
+PUBSUB_TOPIC=
+# Empty = call Workers AI directly instead of through an AI Gateway.
+AI_GATEWAY_ID=

@@ -192,6 +192,7 @@ function settingsForm() {
     ...auto.map((k) => h("label", {}, h("input", { type: "checkbox", "data-auto": k, checked: !!s.autonomy[k] }), ` ${k}`)),
     h("div", { class: "actions" },
       h("button", { class: "act primary", type: "submit" }, "Save"),
+      h("button", { class: "act", type: "button", onclick: async () => { const r = await call("POST", "/api/sync"); toast(`Synced: ${r.queued ?? 0} new message(s) queued`); setTimeout(load, 3000); } }, "Sync Gmail now"),
       h("button", { class: "act", type: "button", onclick: async () => { await call("POST", "/api/brief"); toast("Brief sent to your inbox"); } }, "Send brief now"),
       h("button", { class: "act danger", type: "button", onclick: async () => { if (confirm("Disconnect Google and delete everything Mise stored?")) { await call("POST", "/api/disconnect"); location.href = "/"; } } }, "Disconnect & delete data"),
     ),

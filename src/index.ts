@@ -167,6 +167,7 @@ async function api(req: Request, env: Env, path: string): Promise<Response> {
   if (req.method === "POST" && (m = path.match(/^\/api\/actions\/([\w-]+)\/undo$/))) return json(await agent.undo(m[1]));
   if (req.method === "PUT" && path === "/api/settings") return json(await agent.updateSettings(sanitizeSettings(body)));
   if (req.method === "POST" && path === "/api/brief") return json(await agent.sendBriefNow());
+  if (req.method === "POST" && path === "/api/sync") return json({ ok: true, ...(await agent.syncMail()) });
   if ((m = path.match(/^\/api\/preferences\/([\w.:-]+)$/))) {
     if (req.method === "PUT" && typeof body.value === "string") return json(await agent.setPreference(m[1], body.value.slice(0, 500)));
     if (req.method === "DELETE") return json(await agent.deletePreference(m[1]));

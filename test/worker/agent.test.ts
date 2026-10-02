@@ -184,6 +184,16 @@ describe("Mise on workerd", () => {
     expect((await dashboard()).preferences).toEqual([]);
   });
 
+  it("syncs Gmail on demand (local dev / polling mode)", async () => {
+    const msg = google.deliver({ from: "Maya <maya@acme.com>", subject: "Budget", body: "Could you approve the Q4 budget?" });
+    const res = (await (await api("/api/sync", { method: "POST" })).json()) as any;
+    expect(res).toMatchObject({ ok: true, queued: 1 });
+    // The earlier settings test enabled autonomy for replies, so the draft goes straight out.
+    await vi.waitFor(() => expect(google.sent.some((m) => m.threadId === msg.threadId)).toBe(true), { timeout: 10_000, interval: 50 });
+    const d = await dashboard();
+    expect(d.actions.find((a: any) => a.tool === "send_draft" && a.args.threadId === msg.threadId)).toMatchObject({ approvedBy: "auto" });
+  });
+
   it("disconnect deletes everything (PRD §9.2)", async () => {
     const res = await api("/api/disconnect", { method: "POST" });
     expect(res.status).toBe(200);

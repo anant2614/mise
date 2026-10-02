@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mise",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // Dashboard (static PWA). API, auth and webhook routes hit the Worker first.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/auth/*", "/webhooks/*", "/health"]
+  },
+
+  // One InboxAgent Durable Object per user, with SQLite storage.
+  "durable_objects": { "bindings": [{ "name": "InboxAgent", "class_name": "InboxAgent" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["InboxAgent"] }],
+
+  // User registry: email → userId.
+  "d1_databases": [{ "binding": "DB", "database_name": "mise", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "migrations" }],
+
+  // All inference on Workers AI, routed through AI Gateway (set AI_GATEWAY_ID).
+
+  "vars": {
+    "PUBLIC_URL": "https://mise.example.workers.dev",
+    "PUBSUB_TOPIC": "projects/REPLACE_GCP_PROJECT/topics/mise-gmail",
+    "AI_GATEWAY_ID": "mise"
+  }
+  // Secrets (wrangler secret put): GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, TOKEN_ENC_KEY,
+  // SESSION_SECRET, and optionally PUBSUB_AUDIENCE, PUBSUB_SERVICE_ACCOUNT.
+}

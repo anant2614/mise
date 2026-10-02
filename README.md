@@ -58,6 +58,28 @@ npm run typecheck
 npm run eval:live   # same fixtures against real Workers AI (needs CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN)
 ```
 
+### Running locally (against your real Gmail)
+
+Locally there's no Pub/Sub push (Google can't reach `localhost`), so Mise polls Gmail every 2 minutes. The dashboard also has a **Sync Gmail now** button. Workers AI always runs on Cloudflare, so you need a free Cloudflare account; Durable Objects, D1 and the dashboard run on your machine.
+
+1. **Google OAuth client** ([console.cloud.google.com](https://console.cloud.google.com)):
+   - Create a project. Under *APIs & Services → Library*, enable the **Gmail API** and the **Google Calendar API**.
+   - On the *OAuth consent screen*, choose **External**, leave it in **Testing**, and add your Gmail address under **Test users**.
+   - Under *Credentials → Create credentials → OAuth client ID*, choose **Web application** and add the redirect URI `http://localhost:8787/auth/callback`.
+2. **Configure and start:**
+   ```bash
+   npm install
+   npx wrangler login               # Workers AI runs remotely, even in dev
+   cp .dev.vars.example .dev.vars   # fill in GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET,
+                                    # and random TOKEN_ENC_KEY / SESSION_SECRET (openssl rand -base64 32)
+   npx wrangler d1 migrations apply mise --local
+   npm run dev                      # http://localhost:8787
+   ```
+3. Open **http://localhost:8787** in Chrome or Firefox (session cookies are `Secure`, which those browsers allow on localhost but Safari doesn't). Click **Connect Google**. Google warns that the app is unverified; continue, since it's your own test app. Mise backfills the last 30 days and emails you a first brief.
+4. Send yourself a question from another account, wait up to 2 minutes or click **Settings → Sync Gmail now**, and look for the draft in that Gmail thread.
+
+AI calls are billed to your Cloudflare account, though the daily free allocation covers a personal inbox. Local state lives in `.wrangler/`; delete that folder to start over.
+
 ### Deploying
 
 1. **Google Cloud**: create an OAuth client (web) with redirect `https://<your-worker>/auth/callback`, enable the Gmail and Calendar APIs, and add yourself as a test user (testing mode allows up to 100 users).

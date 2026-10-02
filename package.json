@@ -1,0 +1,31 @@
+{
+  "name": "mise",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mise — an AI inbox agent that lives in Gmail and gets pending work done (Cloudflare Workers + Workers AI)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:worker": "vitest run --project worker",
+    "eval": "vitest run --project unit test/eval"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "^2.0.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "agents": "^0.24.0",
+    "postal-mime": "^4.0.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
+    "@cloudflare/workers-types": "^5.20261002.1",
+    "@types/node": "^26.6.4",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.146.0"
+  }
+}

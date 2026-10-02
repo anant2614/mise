@@ -9,6 +9,10 @@ export default defineConfig({
         test: { name: "unit", include: ["test/unit/**/*.test.ts", "test/eval/**/*.test.ts"], environment: "node" },
       },
       {
+        // Real Workers AI models over the REST API; skipped without Cloudflare credentials.
+        test: { name: "live", include: ["test/live/**/*.test.ts"], environment: "node" },
+      },
+      {
         // The real Worker + InboxAgent Durable Object, running in workerd.
         plugins: [cloudflareTest({ wrangler: { configPath: "./wrangler.test.jsonc" } })],
         test: { name: "worker", include: ["test/worker/**/*.test.ts"], testTimeout: 30_000 },
